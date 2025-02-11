@@ -32,6 +32,7 @@
                     </tableView>
                     <navigationItem key="navigationItem" title="ToDo" id="VVX-VW-bjA">
                         <barButtonItem key="rightBarButtonItem" systemItem="add" id="Cpd-Ou-rpR">
+                            <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             <connections>
                                 <action selector="addButtonPressed:" destination="Hpz-9h-4mC" id="9dv-OB-C5Q"/>
                             </connections>
