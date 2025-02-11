@@ -6,22 +6,20 @@
 //
 
 import UIKit
+import CoreData
 
 class ToDoListViewController: UITableViewController {
-    var itemArray: [Item] = [
-        Item(title: "Buy groceries"),
-        Item(title: "Walk the dog"),
-        Item(title: "Finish Swift tutorial"),
-    ]
+    var itemArray = [Item]()
     
-    let defaults = UserDefaults.standard
+    
+    // Core Data context
+    let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Load saved items from the .plist
+        //load previous data
         loadItems()
-        
-        
         
         // Desing code:
         let appearance = UINavigationBarAppearance()
@@ -47,99 +45,81 @@ class ToDoListViewController: UITableViewController {
         cell.textLabel?.text =  item.title// Set cell text to the corresponding item
         
         cell.accessoryType = item.done ? .checkmark : .none //Set the checkmark based on the `done` property of the item
-        saveItems()
+        
         return cell
     }
     
     //Mark- tableView Delegate Methods
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        // Add a checkmark to the selected cell (toggle checkmark)
-        itemArray[indexPath.row].done = !itemArray[indexPath.row].done
+        // 1. Toggle the 'done' property in Core Data
+        itemArray[indexPath.row].done.toggle()
         
-        // Reload the row to update the checkmark
+        // 2. Save the updated state
+        saveData()
+        
+        // 3. Reload the row to update the checkmark
         tableView.reloadRows(at: [indexPath], with: .automatic)
         
-        // Animation: Deselect the row after selection to remove the highlight effect
+        // 4. Deselect the row after selection to remove the highlight effect
         tableView.deselectRow(at: indexPath, animated: true)
     }
     
     //MARK - Add New Items
     @IBAction func addButtonPressed(_ sender: UIBarButtonItem) {
-        // Let's create add new item functionality to our todoapp.
-        let alert = UIAlertController(title: "Add New Item", message: "", preferredStyle:.alert)
-        
-        //Text field to the alert
+        let alert = UIAlertController(title: "Add New Item", message: "", preferredStyle: .alert)
+
+        // Text field for user input
         alert.addTextField { (textField) in
             textField.placeholder = "Enter new item"
         }
-        
+
         // "Add" action
         let addAction = UIAlertAction(title: "Add", style: .default) { _ in
-            // Get the text fron the text field
-            if let newItem = alert.textFields?.first?.text, !newItem.isEmpty{
-                //add item to itemArray
-                self.itemArray.append(Item(title: newItem))
+            if let newItemText = alert.textFields?.first?.text, !newItemText.isEmpty {
                 
-                // saving for persisstency
-                self.saveItems()
+                // 1. Create a new Item using the stored Core Data context
+                let newItem = Item(context: self.context)
+                newItem.title = newItemText
+                // 2. Add to itemArray
+                self.itemArray.append(newItem)
                 
-                // reload the table view to display the new item
-                self.tableView.reloadData()
+                // 3. Save using saveData()
+                self.saveData()
             }
         }
-        
-        
-        // Add "Cancel" action
+
         let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
-        
-        // Add actions to the alert controller
         alert.addAction(addAction)
         alert.addAction(cancelAction)
-        
-        //Present the alert
+
         present(alert, animated: true, completion: nil)
     }
     
-    func saveItems() {
-        // Get the path to the "Items.plist" file in the Documents directory
-        guard let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("Items.plist") else {
-            print("Failed to get file path")
-            return
-        }
-        
-        // Encode the itemArray into Data using PropertyListEncoder
-        let encoder = PropertyListEncoder()
+    
+    //Mark - Core data functions
+    func saveData() {
         do {
-            let data = try encoder.encode(itemArray)
-            try data.write(to: dataFilePath)
-            print("Items saved successfully to \(dataFilePath)")
+            try context.save()
         } catch {
-            print("Failed to save items: \(error)")
+            print("Error saving data to Core Data: \(error)")
         }
+
+        tableView.reloadData()
     }
+
     
     func loadItems() {
-        // Get the path to the "Items.plist" file in the Documents directory
-        guard let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("Items.plist") else {
-            print("Failed to get file path")
-            return
-        }
+        // 1. Create a fetch request for the Item entity
+        let request: NSFetchRequest<Item> = Item.fetchRequest()
         
-        // Check if the file exists before attempting to read it
-        if !FileManager.default.fileExists(atPath: dataFilePath.path) {
-            print("No existing file found, skipping load.")
-            return
-        }
-        // Decode the data from the .plist file using PropertyListDecoder
-        let decoder = PropertyListDecoder()
         do {
-            let data = try Data(contentsOf: dataFilePath)
-            itemArray = try decoder.decode([Item].self, from: data)
-            print("Items loaded successfully from \(dataFilePath)")
+            // 2. Fetch items from Core Data and assign them to itemArray
+            itemArray = try context.fetch(request)
+            tableView.reloadData()  // Refresh the table view with fetched data
+            print("Loaded \(itemArray.count) items from Core Data")
         } catch {
-            print("Failed to load items: \(error)")
+            print("Error fetching data from Core Data: \(error)")
         }
     }
-    
 }
 
