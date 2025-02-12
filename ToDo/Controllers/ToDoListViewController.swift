@@ -10,6 +10,7 @@ import CoreData
 
 class ToDoListViewController: UITableViewController {
     
+    @IBOutlet weak var UISearchBar: UISearchBar!
     var itemArray = [Item]()
     let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     
@@ -74,14 +75,22 @@ class ToDoListViewController: UITableViewController {
 
 // MARK: - UISearchBarDelegate
 extension ToDoListViewController: UISearchBarDelegate {
+    func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
+        DispatchQueue.main.async {
+            searchBar.becomeFirstResponder() // Forces keyboard to appear
+        }
+    }
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        if searchText.isEmpty {
+        if searchBar.text?.count == 0{
             loadItems()
-        } else {
+            DispatchQueue.main.async {
+                searchBar.resignFirstResponder()
+            }
+        }else {
             filterItems(with: searchText)
+            tableView.reloadData()
         }
-        tableView.reloadData()
     }
     
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
