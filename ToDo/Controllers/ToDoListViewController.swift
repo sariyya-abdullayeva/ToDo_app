@@ -12,12 +12,17 @@ class ToDoListViewController: UITableViewController {
     
     @IBOutlet weak var UISearchBar: UISearchBar!
     var itemArray = [Item]()
+    var selectedCategory: Category? {
+        didSet {
+            loadItems()
+        }
+    }
     let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        loadItems()
-        
+        title = selectedCategory?.name ?? "To-Do List" // Set the navigation title to the category name
+
         //Add desing to nav bar
         setupNavigationBar()
     }
@@ -32,6 +37,9 @@ class ToDoListViewController: UITableViewController {
             if let newItemText = alert.textFields?.first?.text, !newItemText.isEmpty {
                 let newItem = Item(context: self.context)
                 newItem.title = newItemText
+                
+                newItem.parentCategory = self.selectedCategory
+
                 self.itemArray.append(newItem)
                 self.saveData()
             }
@@ -54,6 +62,10 @@ class ToDoListViewController: UITableViewController {
     
     func loadItems() {
         let request: NSFetchRequest<Item> = Item.fetchRequest()
+        let categoryPredicate = NSPredicate(format: "parentCategory == %@", selectedCategory!)
+        
+        request.predicate = categoryPredicate
+        
         do {
             itemArray = try context.fetch(request)
             tableView.reloadData()
@@ -99,7 +111,13 @@ extension ToDoListViewController: UISearchBarDelegate {
     
     private func filterItems(with searchText: String) {
         let request: NSFetchRequest<Item> = Item.fetchRequest()
-        request.predicate = NSPredicate(format: "title CONTAINS[cd] %@", searchText)
+        
+        
+        let categoryPredicate = NSPredicate(format: "parentCategory == %@", selectedCategory!)
+        let searchPredicate = NSPredicate(format: "title CONTAINS[cd] %@", searchText)
+        
+        request.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [categoryPredicate, searchPredicate])
+        
         
         do {
             itemArray = try context.fetch(request)
