@@ -21,11 +21,18 @@ class ToDoListViewController: UITableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        title = selectedCategory?.name ?? "To-Do List" // Set the navigation title to the category name
-
-        //Add desing to nav bar
-        setupNavigationBar()
+//        title = selectedCategory?.name ?? "To-Do List" 
+        
     }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        setupNavigationBar(with: .systemBlue)
+        // Ensure back button and title are white
+        navigationController?.navigationBar.tintColor = .white
+        navigationController?.navigationBar.titleTextAttributes = [.foregroundColor: UIColor.white]
+    }
+    
     
     @IBAction func addButtonPressed(_ sender: UIBarButtonItem) {
         let alert = UIAlertController(title: "Add New Item", message: "", preferredStyle: .alert)
@@ -39,7 +46,7 @@ class ToDoListViewController: UITableViewController {
                 newItem.title = newItemText
                 
                 newItem.parentCategory = self.selectedCategory
-
+                
                 self.itemArray.append(newItem)
                 self.saveData()
             }
@@ -73,16 +80,6 @@ class ToDoListViewController: UITableViewController {
             print("Error fetching data from Core Data: \(error)")
         }
     }
-    
-    private func setupNavigationBar() {
-        let appearance = UINavigationBarAppearance()
-        appearance.configureWithOpaqueBackground() // Ensures no transparency
-        appearance.backgroundColor = UIColor.systemBlue // Change this to your desired color
-        
-        navigationController?.navigationBar.standardAppearance = appearance
-        navigationController?.navigationBar.scrollEdgeAppearance = appearance
-    }
-    
 }
 
 // MARK: - UISearchBarDelegate
@@ -150,4 +147,28 @@ extension ToDoListViewController {
         tableView.reloadRows(at: [indexPath], with: .automatic)
         tableView.deselectRow(at: indexPath, animated: true)
     }
+    
+    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        if editingStyle == .delete {
+            let itemToDelete = itemArray[indexPath.row]
+            
+            // Show confirmation alert
+            let alert = UIAlertController(title: "Delete Item",
+                                          message: "Are you sure you want to delete \"\(itemToDelete.title ?? "this item")\"?",
+                                          preferredStyle: .alert)
+
+            alert.addAction(UIAlertAction(title: "Delete", style: .destructive, handler: { _ in
+                self.context.delete(itemToDelete)
+                self.itemArray.remove(at: indexPath.row)
+                self.saveData()
+            }))
+
+            alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { _ in
+                tableView.setEditing(false, animated: true)
+            }))
+
+            present(alert, animated: true)
+        }
+    }
+
 }
