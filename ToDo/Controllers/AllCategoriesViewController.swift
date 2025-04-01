@@ -1,5 +1,5 @@
 import UIKit
-
+import CHTCollectionViewWaterfallLayout
 class AllCategoriesViewController: UIViewController {
     
     // MARK: - Properties
@@ -37,30 +37,59 @@ class AllCategoriesViewController: UIViewController {
     
     // MARK: - Setup Collection View
     private func setupCollectionView() {
-        let layout = createCompositionalLayout()
-        collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        collectionView.backgroundColor = .clear
-        collectionView.translatesAutoresizingMaskIntoConstraints = false
-        
-        // Register the new cell class
-        collectionView.register(UINib(nibName: "CategoryGridCell", bundle: nil), forCellWithReuseIdentifier: CategoryGridCell.identifier)
-        
-        
-        // Set delegates
-        collectionView.dataSource = self
-        collectionView.delegate = self
-        
-        // Add to view
-        view.addSubview(collectionView)
-        
-        // Constraints
-        NSLayoutConstraint.activate([
-            collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
-        ])
-    }
+            let layout = CHTCollectionViewWaterfallLayout() // ✅ Step 2: Use Waterfall layout
+            layout.columnCount = 2
+            layout.minimumColumnSpacing = 10
+            layout.minimumInteritemSpacing = 10
+            layout.sectionInset = UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10)
+
+            collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+            collectionView.backgroundColor = .clear
+            collectionView.translatesAutoresizingMaskIntoConstraints = false
+
+            // Register the new cell class
+            collectionView.register(UINib(nibName: "CategoryGridCell", bundle: nil), forCellWithReuseIdentifier: CategoryGridCell.identifier)
+
+            // Set delegates
+            collectionView.dataSource = self
+            collectionView.delegate = self
+
+            // Add to view
+            view.addSubview(collectionView)
+
+            // Constraints
+            NSLayoutConstraint.activate([
+                collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+                collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+                collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+                collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+            ])
+        }
+//    private func setupCollectionView() {
+//        let layout = createCompositionalLayout()
+//        collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+//        collectionView.backgroundColor = .clear
+//        collectionView.translatesAutoresizingMaskIntoConstraints = false
+//        
+//        // Register the new cell class
+//        collectionView.register(UINib(nibName: "CategoryGridCell", bundle: nil), forCellWithReuseIdentifier: CategoryGridCell.identifier)
+//        
+//        
+//        // Set delegates
+//        collectionView.dataSource = self
+//        collectionView.delegate = self
+//        
+//        // Add to view
+//        view.addSubview(collectionView)
+//        
+//        // Constraints
+//        NSLayoutConstraint.activate([
+//            collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+//            collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+//            collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+//            collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+//        ])
+//    }
     
     private func addCategory(name: String) {
         let newCategory = CoreDataManager.shared.createCategory(name: name)
@@ -125,7 +154,7 @@ class AllCategoriesViewController: UIViewController {
             let groupSize = NSCollectionLayoutSize(
                 widthDimension: .fractionalWidth(1.0),
                 heightDimension: .estimated(150)
-            ) 
+            )
             
             let group = NSCollectionLayoutGroup.horizontal(
                 layoutSize: groupSize,
@@ -199,3 +228,20 @@ extension AllCategoriesViewController: UICollectionViewDelegate {
     }
 }
 
+
+// ✅ Step 3: Conform to the layout delegate to provide item heights
+extension AllCategoriesViewController: CHTCollectionViewDelegateWaterfallLayout {
+    func collectionView(_ collectionView: UICollectionView,
+                        layout collectionViewLayout: UICollectionViewLayout,
+                        sizeForItemAt indexPath: IndexPath) -> CGSize {
+        let category = displayedCategories[indexPath.item]
+                let itemCount = (category.items as? Set<Item>)?.count ?? 0
+
+                // 🆕 Dynamically calculate height based on item count
+                let baseHeight: CGFloat = 100
+                let extraHeightPerItem: CGFloat = 20
+
+                let calculatedHeight = baseHeight + CGFloat(itemCount) * extraHeightPerItem
+                return CGSize(width: 0, height: calculatedHeight)
+    }
+}
