@@ -46,28 +46,23 @@ class CategoryCell: UICollectionViewCell, UITableViewDelegate, UITableViewDataSo
         todoTableView.dataSource = self
         todoTableView.register(UITableViewCell.self, forCellReuseIdentifier: "ItemCell")
     }
-    
     func configure(with category: Category, index: Int, totalCount: Int, items: [Item]) {
         titleLabel.text = category.name
         titleLabel.font = UIFont(name: "Nunito-SemiBold", size: 24)
-        
-        
+
         self.items = items
         todoTableView.reloadData()
-        
-        let colors: [UIColor] = [
-            UIColor(red: 123/255, green: 211/255, blue: 234/255, alpha: 1.0),
-            UIColor(red: 161/255, green: 238/255, blue: 189/255, alpha: 1.0),
-            UIColor(red: 246/255, green: 247/255, blue: 196/255, alpha: 1.0),
-            UIColor(red: 246/255, green: 214/255, blue: 214/255, alpha: 1.0)
-        ]
-        
-        contentView.backgroundColor = colors[index % colors.count]
-        
+
+        // 🆕 Use category color from Core Data
+        let background = CategoryColor.uiColor(for: category.colorName ?? CategoryColor.defaultColor)
+        contentView.backgroundColor = background
+
+        // Optional: Keep the fade effect if you want depth
         let opacityStep: CGFloat = 0.25
         contentView.alpha = 1.0 - (CGFloat(totalCount - 1 - index) * opacityStep)
     }
-    
+
+        
     // MARK: - UITableView DataSource
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return items.count

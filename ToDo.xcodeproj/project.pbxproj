@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		961BEB552D91A06D00715DAA /* Nunito-VariableFont_wght.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 961BEB542D91A06D00715DAA /* Nunito-VariableFont_wght.ttf */; };
+		968CAF2E2D9B0B7E008C6EAA /* CHTCollectionViewWaterfallLayout in Frameworks */ = {isa = PBXBuildFile; productRef = 968CAF2D2D9B0B7E008C6EAA /* CHTCollectionViewWaterfallLayout */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -60,6 +61,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				968CAF2E2D9B0B7E008C6EAA /* CHTCollectionViewWaterfallLayout in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -119,6 +121,7 @@
 			);
 			name = ToDo;
 			packageProductDependencies = (
+				968CAF2D2D9B0B7E008C6EAA /* CHTCollectionViewWaterfallLayout */,
 			);
 			productName = ToDo;
 			productReference = D40CAE152D54E5C9009CF8F9 /* ToDo.app */;
@@ -196,6 +199,9 @@
 			);
 			mainGroup = D40CAE0C2D54E5C9009CF8F9;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				968CAF2C2D9B0B7E008C6EAA /* XCRemoteSwiftPackageReference "CHTCollectionViewWaterfallLayout" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = D40CAE162D54E5C9009CF8F9 /* Products */;
 			projectDirPath = "";
@@ -552,6 +558,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		968CAF2C2D9B0B7E008C6EAA /* XCRemoteSwiftPackageReference "CHTCollectionViewWaterfallLayout" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/chiahsien/CHTCollectionViewWaterfallLayout.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.9.10;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		968CAF2D2D9B0B7E008C6EAA /* CHTCollectionViewWaterfallLayout */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 968CAF2C2D9B0B7E008C6EAA /* XCRemoteSwiftPackageReference "CHTCollectionViewWaterfallLayout" */;
+			productName = CHTCollectionViewWaterfallLayout;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = D40CAE0D2D54E5C9009CF8F9 /* Project object */;
 }

@@ -59,12 +59,20 @@ class CoreDataManager {
             return []
         }
     }
-    
-    func createCategory(name: String) -> Category {
+   
+
+    func createCategory(name: String, colorName: String = CategoryColor.defaultColor) -> Category {
         let newCategory = Category(context: context)
         newCategory.name = name
+        newCategory.colorName = colorName
         return newCategory
     }
+
+//    func createCategory(name: String) -> Category {
+//        let newCategory = Category(context: context)
+//        newCategory.name = name
+//        return newCategory
+//    }
     
     func deleteCategory(_ category: Category) {
         context.delete(category)

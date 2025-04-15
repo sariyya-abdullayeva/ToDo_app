@@ -10,7 +10,8 @@ import CoreData
 
 class ToDoListViewController: UITableViewController {
     
-    @IBOutlet weak var UISearchBar: UISearchBar!
+//    @IBOutlet weak var UISearchBar: UISearchBar!
+
     var itemArray = [Item]()
     var selectedCategory: Category? {
         didSet {
@@ -21,15 +22,46 @@ class ToDoListViewController: UITableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-//        title = selectedCategory?.name ?? "To-Do List" 
+        setHeader()
+    }
+    
+    private func setHeader() {
+        let headerLabel = UILabel()
+            headerLabel.text = selectedCategory?.name ?? "To-Do List"
+            headerLabel.font = UIFont(name: "Nunito-Bold", size: 30)
+            headerLabel.numberOfLines = 0
+//            headerLabel.textColor = .white
+            
+            // color of the category
+            let categoryColor = UIColor(named: selectedCategory?.colorName ?? CategoryColor.defaultColor) ?? .systemBlue
+
+            let padding: CGFloat = 16
+            let labelHeight: CGFloat = 44
+            headerLabel.frame = CGRect(x: padding, y: 8, width: tableView.frame.width - 2 * padding, height: labelHeight)
+            
+            // Container view for padding and background
+            let containerHeight = labelHeight + 16
+            let containerView = UIView(frame: CGRect(x: 0, y: 0, width: tableView.frame.width, height: containerHeight))
+            
+            containerView.backgroundColor =  categoryColor.withAlphaComponent(0.0)
+            
+            containerView.addSubview(headerLabel)
+            tableView.tableHeaderView = containerView
+            
+
+        let backgroundView = UIView()
+        backgroundView.backgroundColor = categoryColor
+//        backgroundView.backgroundColor = categoryColor.withAlphaComponent(0.2)
+        tableView.backgroundView = backgroundView
         
+
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        setupNavigationBar(with: .systemBlue)
+        setupNavigationBar(with: .white)
         // Ensure back button and title are white
-        navigationController?.navigationBar.tintColor = .white
+        navigationController?.navigationBar.tintColor = .systemBlue
         navigationController?.navigationBar.titleTextAttributes = [.foregroundColor: UIColor.white]
     }
     
@@ -82,47 +114,47 @@ class ToDoListViewController: UITableViewController {
     }
 }
 
-// MARK: - UISearchBarDelegate
-extension ToDoListViewController: UISearchBarDelegate {
-    func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
-        DispatchQueue.main.async {
-            searchBar.becomeFirstResponder() // Forces keyboard to appear
-        }
-    }
-    
-    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        if searchBar.text?.count == 0{
-            loadItems()
-            DispatchQueue.main.async {
-                searchBar.resignFirstResponder()
-            }
-        }else {
-            filterItems(with: searchText)
-            tableView.reloadData()
-        }
-    }
-    
-    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-        searchBar.resignFirstResponder()
-    }
-    
-    private func filterItems(with searchText: String) {
-        let request: NSFetchRequest<Item> = Item.fetchRequest()
-        
-        
-        let categoryPredicate = NSPredicate(format: "parentCategory == %@", selectedCategory!)
-        let searchPredicate = NSPredicate(format: "title CONTAINS[cd] %@", searchText)
-        
-        request.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [categoryPredicate, searchPredicate])
-        
-        
-        do {
-            itemArray = try context.fetch(request)
-        } catch {
-            print("Error fetching filtered data: \(error)")
-        }
-    }
-}
+//// MARK: - UISearchBarDelegate
+//extension ToDoListViewController: UISearchBarDelegate {
+//    func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
+//        DispatchQueue.main.async {
+//            searchBar.becomeFirstResponder() // Forces keyboard to appear
+//        }
+//    }
+//    
+//    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+//        if searchBar.text?.count == 0{
+//            loadItems()
+//            DispatchQueue.main.async {
+//                searchBar.resignFirstResponder()
+//            }
+//        }else {
+//            filterItems(with: searchText)
+//            tableView.reloadData()
+//        }
+//    }
+//    
+//    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+//        searchBar.resignFirstResponder()
+//    }
+//    
+//    private func filterItems(with searchText: String) {
+//        let request: NSFetchRequest<Item> = Item.fetchRequest()
+//        
+//        
+//        let categoryPredicate = NSPredicate(format: "parentCategory == %@", selectedCategory!)
+//        let searchPredicate = NSPredicate(format: "title CONTAINS[cd] %@", searchText)
+//        
+//        request.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [categoryPredicate, searchPredicate])
+//        
+//        
+//        do {
+//            itemArray = try context.fetch(request)
+//        } catch {
+//            print("Error fetching filtered data: \(error)")
+//        }
+//    }
+//}
 
 // MARK: - UITableViewDataSource & UITableViewDelegate
 extension ToDoListViewController {
@@ -138,6 +170,9 @@ extension ToDoListViewController {
         cell.textLabel?.text = item.title
         cell.accessoryType = item.done ? .checkmark : .none
         
+        cell.backgroundColor = .clear
+        cell.contentView.backgroundColor = .clear
+
         return cell
     }
     

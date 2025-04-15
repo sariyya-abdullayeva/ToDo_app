@@ -27,28 +27,37 @@ class CategoryGridCell: UICollectionViewCell {
         layer.shadowPath = UIBezierPath(roundedRect: bounds, cornerRadius: 16).cgPath
     }
     
-    func configure(with name: String, taskCount: Int, items: [Item]) {
-        taskName.text = name
+    func configure(with category: Category, taskCount: Int, items: [Item]) {
+        taskName.text = category.name ?? "No Name"
         taskLeft.text = "\(taskCount)"
-        
-//         Clean old item views
-            contentStackView.arrangedSubviews
-                .filter { $0.tag == 99 } // Avoid removing icon/name views
-                .forEach {
-                    contentStackView.removeArrangedSubview($0)
-                    $0.removeFromSuperview()
-                }
+        print("🧩 Configuring Category Cell → Name: \(category.name ?? "No Name"), Color: \(category.colorName ?? "nil"), Tasks: \(taskCount)")
 
-            // Add new items as UILabels
-            for item in items {
-                let label = UILabel()
-                label.text = "- \(item.title ?? "")"
-                label.font = UIFont(name: "Nunito-Regular", size: 14)
-                label.textColor = item.done ? .lightGray : .darkText
-                label.tag = 99 // So we can remove them later
-                contentStackView.addArrangedSubview(label)
+        let itemTitles = items.map { $0.title ?? "Unnamed" }
+        print("🧩 Configuring Category Cell → Name: \(category.name ?? "No Name"), Color: \(category.colorName ?? "nil"), Tasks: \(taskCount), Items: \(itemTitles)")
+
+        // 🌈 Apply background color from Core Data
+        let colorName = category.colorName ?? CategoryColor.defaultColor
+        contentView.backgroundColor = CategoryColor.uiColor(for: colorName)
+
+        // Clean old item views
+        contentStackView.arrangedSubviews
+            .filter { $0.tag == 99 }
+            .forEach {
+                contentStackView.removeArrangedSubview($0)
+                $0.removeFromSuperview()
             }
+
+        // Add items
+        for item in items {
+            let label = UILabel()
+            label.text = "- \(item.title ?? "")"
+            label.font = UIFont(name: "Nunito-Regular", size: 14)
+            label.textColor = item.done ? .lightGray : .darkText
+            label.tag = 99
+            contentStackView.addArrangedSubview(label)
+        }
     }
+
     private func setupStyle() {
         // Label styles
         taskName.lineBreakMode = .byTruncatingTail

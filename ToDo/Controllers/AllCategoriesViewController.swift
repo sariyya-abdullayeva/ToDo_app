@@ -1,3 +1,10 @@
+//
+//  AllCategoriesViewController.swift
+//  ToDo
+//
+//  Created by Sariyya Abdullayeva on 07.03.2025.
+//
+
 import UIKit
 import CHTCollectionViewWaterfallLayout
 class AllCategoriesViewController: UIViewController {
@@ -32,6 +39,11 @@ class AllCategoriesViewController: UIViewController {
     // MARK: - Data Handling
     private func loadCategories() {
         displayedCategories = CoreDataManager.shared.fetchCategories().reversed()
+        for (index, category) in displayedCategories.enumerated() {
+            let name = category.name ?? "Unnamed"
+            let color = category.colorName ?? "nil"
+            print("🧩 Category [\(index)]: \(name), color: \(color)")
+        }
         collectionView.reloadData()
     }
     
@@ -65,45 +77,18 @@ class AllCategoriesViewController: UIViewController {
                 collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
             ])
         }
-//    private func setupCollectionView() {
-//        let layout = createCompositionalLayout()
-//        collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
-//        collectionView.backgroundColor = .clear
-//        collectionView.translatesAutoresizingMaskIntoConstraints = false
-//        
-//        // Register the new cell class
-//        collectionView.register(UINib(nibName: "CategoryGridCell", bundle: nil), forCellWithReuseIdentifier: CategoryGridCell.identifier)
-//        
-//        
-//        // Set delegates
-//        collectionView.dataSource = self
-//        collectionView.delegate = self
-//        
-//        // Add to view
-//        view.addSubview(collectionView)
-//        
-//        // Constraints
-//        NSLayoutConstraint.activate([
-//            collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-//            collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-//            collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-//            collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
-//        ])
-//    }
-    
-    private func addCategory(name: String) {
-        let newCategory = CoreDataManager.shared.createCategory(name: name)
-        displayedCategories.append(newCategory)
-        CoreDataManager.shared.saveCategory(newCategory)
-        
-        collectionView.reloadData()
+    private func addCategory(name: String, colorName: String) {
+        let newCategory = CoreDataManager.shared.createCategory(name: name, colorName: colorName)
+            displayedCategories.append(newCategory)
+            CoreDataManager.shared.saveCategory(newCategory)
+            collectionView.reloadData()
     }
     
     
     @IBAction func addCategoryPressed(_ sender: UIBarButtonItem) {
-        presentAddCategoryAlert { categoryName in
-            self.addCategory(name: categoryName)
-        }
+        presentAddCategoryAlert { name, colorName in
+                self.addCategory(name: name, colorName: colorName)
+            }
     }
     
     @objc private func handleLongPress(_ gesture: UILongPressGestureRecognizer) {
@@ -184,31 +169,21 @@ extension AllCategoriesViewController: UICollectionViewDataSource {
         let category = displayedCategories[indexPath.item]
         
         // Fetch name
-        let rawName = category.name ?? "No Name"
-        let maxChars = 10
-        let trimmedName = rawName.count > maxChars ? String(rawName.prefix(maxChars)) + "..." : rawName
+//        let rawName = category.name ?? "No Name"
+//        let maxChars = 10
+//        let trimmedName = rawName.count > maxChars ? String(rawName.prefix(maxChars)) + "..." : rawName
         let items = CoreDataManager.shared.fetchItems(for: category)
         
-        // Debug print: category and its items
-        print("📂 Category: \(rawName)")
-        if items.isEmpty {
-            print("   └─ No items found")
-        } else {
-            for (index, item) in items.enumerated() {
-                let itemName = item.title ?? "Unnamed Item"
-                print("   ├─ [\(index + 1)] \(itemName)")
-            }
-        }
-        
-        
+  
         // Fetch item count from relationship
         let itemCount = (category.items as? Set<Item>)?.count ?? 0
         
         
         // Configure cell with name and item count
-        cell.configure(with: trimmedName, taskCount: itemCount, items: items)
+//        cell.configure(with: trimmedName, taskCount: itemCount, items: items, colorName: category.colorName)
         
-        
+        cell.configure(with: category, taskCount: itemCount, items: items)
+
         
         return cell
     }

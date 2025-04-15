@@ -68,31 +68,17 @@ class CategoryViewController: UIViewController {
         collectionView.reloadData()
     }
     
-    private func addCategory(name: String) {
-        let newCategory = CoreDataManager.shared.createCategory(name: name)
+    private func addCategory(name: String, colorName: String) {
+        let newCategory = CoreDataManager.shared.createCategory(name: name, colorName: colorName)
         displayedCategories.append(newCategory)
         CoreDataManager.shared.saveCategory(newCategory)
-        
         collectionView.reloadData()
     }
-    
     // MARK: - Actions
     @IBAction func addButtonPressed(_ sender: UIButton) {
-        let alert = UIAlertController(title: "New Category", message: "Enter category name", preferredStyle: .alert)
-        
-        alert.addTextField { textField in
-            textField.placeholder = "Category Name"
+        presentAddCategoryAlert { name, colorName in
+            self.addCategory(name: name, colorName: colorName)
         }
-        
-        let addAction = UIAlertAction(title: "Add", style: .default) { _ in
-            if let categoryName = alert.textFields?.first?.text, !categoryName.isEmpty {
-                self.addCategory(name: categoryName)
-            }
-        }
-        
-        alert.addAction(addAction)
-        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
-        present(alert, animated: true)
     }
     
     
