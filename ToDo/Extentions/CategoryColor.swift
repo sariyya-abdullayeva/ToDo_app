@@ -7,7 +7,7 @@
 import UIKit
 
 struct CategoryColor {
-    static let colorMapping: [(emoji: String, name: String)] = [
+    static let colorMapping: [(color: String, name: String)] = [
         ("🔵", "CategoryBlue"),
         ("🟢", "CategoryGreen"),
         ("🟡", "CategoryYellow"),
@@ -19,7 +19,7 @@ struct CategoryColor {
     }
 
     static var allEmojis: [String] {
-        return colorMapping.map { $0.emoji }
+        return colorMapping.map { $0.color }
     }
 
     static var defaultColor: String {

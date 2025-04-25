@@ -12,18 +12,13 @@ extension UIViewController {
         let alert = UIAlertController(title: "New Category", message: "\n\n\n", preferredStyle: .alert)
         
         // Add text field for category name
-        // I want to add placeholder emoji icon/promp to guide a user that when clicking on it they will be able to choose an emoji for their category title.
-        // the placeholder emoji should open a window of emoji that user has in their phone so that they can pick.
-        // when user picks we replace placeholder emoji with the selected one
-        //the omoji picker should in the same line as textfield.
-    
         alert.addTextField { textField in
             textField.placeholder = "Category Name"
         }
 
-        // Use emoji from CategoryColor mapping
-        let emojiOptions = CategoryColor.colorMapping.map { $0.emoji }
-        let segmented = UISegmentedControl(items: emojiOptions)
+        // Use color from CategoryColor mapping
+        let colorOptions = CategoryColor.colorMapping.map { $0.color }
+        let segmented = UISegmentedControl(items: colorOptions)
         
         // Set default selection
         if let defaultIndex = CategoryColor.colorMapping.firstIndex(where: { $0.name == CategoryColor.defaultColor }) {
